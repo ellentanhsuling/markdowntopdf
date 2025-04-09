@@ -3,7 +3,10 @@ import markdown
 import base64
 import tempfile
 import os
-from weasyprint import HTML
+from fpdf import FPDF, HTMLMixin
+
+class HTML2PDF(FPDF, HTMLMixin):
+    pass
 
 def markdown_to_html(markdown_text):
     """Convert markdown text to HTML."""
@@ -13,41 +16,21 @@ def markdown_to_html(markdown_text):
         'markdown.extensions.codehilite',
         'markdown.extensions.toc',
         'markdown.extensions.nl2br',
-        'mdx_math'
     ]
     html = markdown.markdown(markdown_text, extensions=extensions)
     return html
 
 def html_to_pdf(html_content):
-    """Convert HTML to PDF using WeasyPrint."""
-    # Create a temporary HTML file
-    with tempfile.NamedTemporaryFile(suffix='.html', delete=False) as f:
-        f.write(html_content.encode('utf-8'))
-        temp_html_path = f.name
+    """Convert HTML to PDF using FPDF."""
+    # Create a PDF document
+    pdf = HTML2PDF()
+    pdf.add_page()
+    pdf.write_html(html_content)
     
-    # Convert HTML to PDF
+    # Save to a temporary file
     pdf_file = tempfile.NamedTemporaryFile(suffix='.pdf', delete=False)
     pdf_file.close()
-    
-    # Basic CSS for better PDF formatting
-    css = """
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    h1 { color: #2c3e50; }
-    h2 { color: #3498db; }
-    h3 { color: #2980b9; }
-    code { background-color: #f8f8f8; padding: 2px 4px; border-radius: 4px; }
-    pre { background-color: #f8f8f8; padding: 10px; border-radius: 4px; overflow-x: auto; }
-    blockquote { border-left: 4px solid #ccc; padding-left: 15px; color: #555; }
-    table { border-collapse: collapse; width: 100%; }
-    th, td { border: 1px solid #ddd; padding: 8px; }
-    th { background-color: #f2f2f2; }
-    """
-    
-    # Create PDF with WeasyPrint
-    HTML(temp_html_path).write_pdf(pdf_file.name, stylesheets=[CSS(string=css)])
-    
-    # Clean up the temporary HTML file
-    os.unlink(temp_html_path)
+    pdf.output(pdf_file.name)
     
     return pdf_file.name
 
@@ -95,18 +78,7 @@ def main():
     if st.button("Generate PDF"):
         with st.spinner("Generating PDF..."):
             # Convert markdown to HTML
-            html_content = f"""
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset="UTF-8">
-                <title>Markdown to PDF</title>
-            </head>
-            <body>
-                {markdown_to_html(st.session_state.markdown_content)}
-            </body>
-            </html>
-            """
+            html_content = markdown_to_html(st.session_state.markdown_content)
             
             # Convert HTML to PDF
             pdf_path = html_to_pdf(html_content)
@@ -116,11 +88,4 @@ def main():
             st.markdown(get_binary_file_downloader_html(pdf_path, "markdown_document"), unsafe_allow_html=True)
 
 if __name__ == "__main__":
-    from streamlit.web.bootstrap import run
-    
-    # Fix for WeasyPrint CSS
-    class CSS:
-        def __init__(self, string=None):
-            self.string = string
-    
     main()

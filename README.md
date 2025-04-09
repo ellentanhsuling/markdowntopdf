@@ -14,18 +14,29 @@ A Streamlit application that allows users to upload, edit, preview, and convert 
 
 1. Clone this repository:
    ```
-   git clone https://github.com/yourusername/markdowntopdf.git
+   git clone https://github.com/ellentanhsuling/markdowntopdf.git
    cd markdowntopdf
    ```
 
-2. Install the required dependencies:
+2. Install wkhtmltopdf (required for PDF generation):
+   - **Windows**: Download and install from [wkhtmltopdf downloads](https://wkhtmltopdf.org/downloads.html)
+   - **macOS**: `brew install wkhtmltopdf`
+   - **Ubuntu/Debian**: `sudo apt-get install wkhtmltopdf`
+   - **CentOS/RHEL**: `sudo yum install wkhtmltopdf`
+
+3. Install the required Python dependencies:
    ```
    pip install -r requirements.txt
    ```
 
-3. Run the application:
+4. Run the application:
    ```
    streamlit run app.py
+   ```
+
+   If you encounter issues with wkhtmltopdf, try the alternative version:
+   ```
+   streamlit run app_alternative.py
    ```
 
 ## Usage
@@ -40,17 +51,9 @@ A Streamlit application that allows users to upload, edit, preview, and convert 
 
 - Python 3.7+
 - Streamlit
-- WeasyPrint
+- wkhtmltopdf (for app.py) or fpdf2 (for app_alternative.py)
 - Markdown
 
 ## License
 
 MIT
-```
-
-## How to Run the Application
-
-To run the application, navigate to the project directory and execute:
-
-```bash
-streamlit run app.py
