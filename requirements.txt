@@ -1,0 +1,4 @@
+streamlit>=1.22.0
+markdown>=3.4.3
+weasyprint>=59.0
+python-markdown-math>=0.8
